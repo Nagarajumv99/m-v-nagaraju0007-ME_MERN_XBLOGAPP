@@ -27,7 +27,8 @@ random secret. The API listens on port 5000 by default.
 | GET | `/api/posts` | Public |
 | POST | `/api/posts` | Authenticated |
 | GET | `/api/posts/:post_id` | Public; optional Bearer token for like state |
-| POST | `/api/posts/:post_id` | Post owner or admin |
+| PUT | `/api/posts/:post_id` | Post owner or admin |
+| POST | `/api/posts/:post_id` | Post owner or admin (legacy; use PUT for updates) |
 | DELETE | `/api/posts/:post_id` | Post owner or admin |
 | POST | `/api/posts/:post_id/like` | Authenticated |
 | GET | `/api/posts/:post_id/comments` | Public |

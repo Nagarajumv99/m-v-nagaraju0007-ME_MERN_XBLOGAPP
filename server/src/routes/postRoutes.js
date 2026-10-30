@@ -15,6 +15,7 @@ const router = express.Router();
 router.get('/', getPosts);
 router.post('/', authenticate, createPost);
 router.get('/:post_id', optionalAuthenticate, getPost);
+router.put('/:post_id', authenticate, updatePost);
 router.post('/:post_id', authenticate, updatePost);
 router.delete('/:post_id', authenticate, deletePost);
 router.post('/:post_id/like', authenticate, toggleLike);

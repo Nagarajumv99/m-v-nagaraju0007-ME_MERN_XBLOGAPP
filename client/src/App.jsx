@@ -21,23 +21,21 @@ function Header() {
   return (
     <header className="site-header">
       <div className="header-inner">
-        <Link className="brand" to="/">Blog App</Link>
         <nav className="main-nav" aria-label="Main navigation">
+          <Link className="brand" to="/">Blog App</Link>
           <Link to="/">Home</Link>
           {user?.role === 'admin' && <Link to="/admin">Admin</Link>}
           {user && <Link to="/profile">Profile</Link>}
           {user && <Link to="/dashboard">Dashboard</Link>}
-        </nav>
-        <div className="header-actions">
           {user ? (
-            <form onSubmit={handleLogout}><button className="button button-logout" type="submit">Logout</button></form>
+            <button className="button button-logout" type="button" onClick={handleLogout}>Logout</button>
           ) : (
-            <>
+            <span className="header-actions">
               <Link to="/login">Login</Link>
               <Link to="/signup">Signup</Link>
-            </>
+            </span>
           )}
-        </div>
+        </nav>
       </div>
     </header>
   );
@@ -139,12 +137,17 @@ function GoogleSignInButton({ disabled, text, onCredential, onError }) {
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="google-signin-button"
-      aria-disabled={disabled}
-      style={{ opacity: disabled ? 0.65 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
-    />
+    <div className="google-signin-control">
+      <div
+        ref={containerRef}
+        className="google-signin-button"
+        aria-disabled={disabled}
+        style={{ opacity: disabled ? 0.65 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
+      />
+      <span className="google-signin-label" aria-hidden="true">
+        {text === 'signup_with' ? 'Sign Up with Google' : 'Login with Google'}
+      </span>
+    </div>
   );
 }
 
@@ -323,7 +326,7 @@ function DashboardPage() {
     }
   }
 
-  return <Page><div className="dashboard-heading"><div><h1>My Posts</h1></div><Link className="button button-purple" to="/posts/new">+ Create Post</Link></div>
+  return <Page><div className="dashboard-heading"><div><h1>My Posts</h1></div><Link className="button button-purple" to="/posts/create">+ Create Post</Link></div>
     <ErrorMessage>{error}</ErrorMessage>
     {posts.length ? <div className="post-grid">{posts.map((post) => <PostCard key={post._id} post={post} onDelete={deletePost} dashboard />)}</div> : <p className="dashboard-empty-text">You have no posts yet.</p>}
   </Page>;
@@ -373,7 +376,7 @@ function PostFormPage({ edit = false }) {
     };
     try {
       const post = await api(edit ? `/posts/${id}` : '/posts', {
-        method: 'POST',
+        method: edit ? 'PUT' : 'POST',
         token,
         body: jsonBody(payload)
       });
@@ -526,6 +529,7 @@ export default function App() {
     <Route path="/login" element={<AuthPage mode="login" />} />
     <Route path="/dashboard" element={<Protected><DashboardPage /></Protected>} />
     <Route path="/profile" element={<Protected><ProfilePage /></Protected>} />
+    <Route path="/posts/create" element={<Protected><PostFormPage /></Protected>} />
     <Route path="/posts/new" element={<Protected><PostFormPage /></Protected>} />
     <Route path="/posts/:id" element={<PostDetailPage />} />
     <Route path="/posts/:id/edit" element={<Protected><PostFormPage edit /></Protected>} />
