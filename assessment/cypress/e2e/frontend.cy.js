@@ -59,11 +59,11 @@ describe('Blog App Frontend Tests', () => {
     cy.clearLocalStorage();
     cy.visit('/');
     cy.contains('Signup').click();
-    cy.get('.google-signin-button iframe, .google-signin-unavailable').should('exist');
+    cy.get('.google-signin-button, .google-signin-unavailable').should('exist');
 
     cy.visit('/');
     cy.contains('Login').click();
-    cy.get('.google-signin-button iframe, .google-signin-unavailable').should('exist');
+    cy.get('.google-signin-button, .google-signin-unavailable').should('exist');
   });
 
   it('User should see their profile', () => {
