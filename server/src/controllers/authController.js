@@ -42,19 +42,20 @@ async function login(req, res, next) {
 
 async function googleLogin(req, res, next) {
   try {
-    const { name, email, avatar } = req.body;
+    const { googleIdToken } = req.body;
+    if (!googleIdToken) {
+      return res.status(400).json({ message: 'Google ID token is required' });
+    }
 
-    if (!name || !email) {
-      return res.status(400).json({
-        message: 'Name and email are required'
-      });
+    const claims = await verifyGoogleIdToken(googleIdToken);
+    const { name, email, picture: avatar, email_verified: emailVerified } = claims;
+    if (!name || !email || !emailVerified) {
+      return res.status(401).json({ message: 'Google account must provide a verified name and email' });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    let user = await User.findOne({
-      email: normalizedEmail
-    });
+    let user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
       user = await User.create({
@@ -65,11 +66,7 @@ async function googleLogin(req, res, next) {
       });
     }
 
-    return res.status(200).json({
-      user: authUser(user, '_id'),
-      token: createToken(user)
-    });
-
+    return res.status(200).json({ user: authUser(user, '_id'), token: createToken(user) });
   } catch (error) {
     return next(error);
   }
