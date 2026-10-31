@@ -3,6 +3,7 @@ const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 
 const authorProjection = 'name email';
+const maxInlineListImageBytes = 100000;
 const postPopulation = [
   { path: 'author', select: authorProjection },
   { path: 'comments' }
@@ -29,9 +30,37 @@ function searchFilter(query) {
 
 async function getPosts(req, res, next) {
   try {
-    const posts = await Post.find(searchFilter(req.query))
-      .populate(postPopulation)
-      .sort({ createdAt: -1 });
+    const posts = await Post.aggregate([
+      { $match: searchFilter(req.query) },
+      { $sort: { createdAt: -1 } },
+      {
+        $set: {
+          id: { $toString: '$_id' },
+          image: {
+            $let: {
+              vars: {
+                imageValue: {
+                  $convert: { input: '$image', to: 'string', onError: '', onNull: '' }
+                }
+              },
+              in: {
+                $cond: [
+                  {
+                    $and: [
+                      { $gt: [{ $strLenBytes: '$$imageValue' }, maxInlineListImageBytes] },
+                      { $regexMatch: { input: '$$imageValue', regex: '^data:image/', options: 'i' } }
+                    ]
+                  },
+                  '',
+                  '$$imageValue'
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]);
+    await Post.populate(posts, postPopulation);
     return res.status(200).json(posts);
   } catch (error) {
     return next(error);

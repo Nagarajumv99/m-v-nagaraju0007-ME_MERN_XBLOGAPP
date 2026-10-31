@@ -126,28 +126,19 @@ function GoogleSignInButton({ disabled, text, onCredential, onError }) {
 
   if (!clientId) {
     return (
-      <button
-        className="button button-google button-full"
-        type="button"
-        onClick={() => onError(new Error('Google sign-in is not configured. Add VITE_GOOGLE_CLIENT_ID to client/.env.'))}
-      >
-        {text === 'signup_with' ? 'Sign Up with Google' : 'Login with Google'}
-      </button>
+      <p className="google-signin-unavailable" role="status">
+        Google sign-in is not configured. Add VITE_GOOGLE_CLIENT_ID to client/.env.
+      </p>
     );
   }
 
   return (
-    <div className="google-signin-control">
-      <div
-        ref={containerRef}
-        className="google-signin-button"
-        aria-disabled={disabled}
-        style={{ opacity: disabled ? 0.65 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
-      />
-      <span className="google-signin-label" aria-hidden="true">
-        {text === 'signup_with' ? 'Sign Up with Google' : 'Login with Google'}
-      </span>
-    </div>
+    <div
+      ref={containerRef}
+      className="google-signin-button"
+      aria-disabled={disabled}
+      style={{ opacity: disabled ? 0.65 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
+    />
   );
 }
 
